@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_meta
+
+# Data files (synthetic data is regenerated)
+data/synthetic/*.db
+data/synthetic/*.csv
+data/synthetic/*.parquet
+*.db
+
+# Model artifacts
+*.pt
+*.pth
+*.pkl
+*.joblib
+models/
+
+# Logs
+logs/training/*.log
+logs/training/*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# FAISS indices
+*.index
+*.faiss
