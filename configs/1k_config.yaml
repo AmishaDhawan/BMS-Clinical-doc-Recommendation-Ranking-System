@@ -1,0 +1,50 @@
+# Configuration for 1K document scale
+# Expected sparsity: ~85% in interaction matrix
+
+data:
+  num_documents: 1000
+  num_physicians: 500
+  num_queries: 2000
+  num_interactions: 75000
+  db_path: "data/synthetic/clinical_docs_1k.db"
+
+retrieval:
+  bm25:
+    k1: 1.5
+    b: 0.75
+    top_k: 100
+
+ranking:
+  lambdarank:
+    input_dim: 640  # 512 TF-IDF + 128 ALS factors
+    hidden_dims: [256, 128]
+    learning_rate: 0.001
+    epochs: 20
+    batch_size: 64
+    gradient_clip: 1.0
+    lr_schedule: "cosine"
+
+collaborative_filtering:
+  als:
+    factors: 128
+    iterations: 15
+    regularization: 0.01
+    confidence_alpha: 40  # c_ui = 1 + alpha * r_ui
+    cold_start_threshold: 5  # documents with fewer interactions
+
+embeddings:
+  text:
+    model_name: "dmis-lab/biobert-base-cased-v1.1"
+    projection_dim: 128
+    fine_tune_layers: 2
+  image:
+    input_dim: 2048  # simulated ResNet output
+    hidden_dim: 512
+    output_dim: 128
+  structured:
+    output_dim: 128
+  contrastive:
+    temperature: 0.07
+    batch_size: 64
+    learning_rate: 0.0001
+    epochs: 10
