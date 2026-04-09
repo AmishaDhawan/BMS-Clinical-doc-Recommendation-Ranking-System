@@ -113,13 +113,12 @@ class ALSCollaborativeFilter:
             random_state=self.random_state,
         )
 
-        # implicit expects items × users for fitting
-        item_user_matrix = interaction_matrix.T.tocsr()
-        self.model.fit(item_user_matrix)
+        # implicit >= 0.7 expects user_items matrix (users × items)
+        self.model.fit(interaction_matrix)
         self._fitted = True
 
-        # Identify cold start items
-        item_interaction_counts = np.diff(item_user_matrix.indptr)
+        # Identify cold start items (count interactions per item = per column)
+        item_interaction_counts = np.diff(interaction_matrix.tocsc().indptr)
         self.cold_start_items = {
             item_ids[i]
             for i in range(len(item_ids))
@@ -281,7 +280,6 @@ class ALSCollaborativeFilter:
             List of per-iteration metrics.
         """
         results = []
-        item_user_matrix = interaction_matrix.T.tocsr()
 
         for n_iter in [1, 3, 5, 10, 15, 20, 25, 30]:
             if n_iter > max_iterations:
@@ -293,7 +291,7 @@ class ALSCollaborativeFilter:
                 regularization=self.regularization,
                 random_state=self.random_state,
             )
-            model.fit(item_user_matrix)
+            model.fit(interaction_matrix)
 
             # Compute reconstruction loss on observed entries
             user_factors = model.user_factors
@@ -343,7 +341,6 @@ class ALSCollaborativeFilter:
             factor_sizes = [32, 64, 128, 256]
 
         results = []
-        item_user_matrix = interaction_matrix.T.tocsr()
 
         for n_factors in factor_sizes:
             model = implicit.als.AlternatingLeastSquares(
@@ -352,7 +349,7 @@ class ALSCollaborativeFilter:
                 regularization=self.regularization,
                 random_state=self.random_state,
             )
-            model.fit(item_user_matrix)
+            model.fit(interaction_matrix)
 
             # Compute reconstruction quality
             sample_size = min(1000, interaction_matrix.nnz)

@@ -216,8 +216,8 @@ def compute_lambda_gradients(
     lambdas = torch.zeros(n, device=device)
 
     for i in range(n):
-        for j in range(n):
-            if i == j:
+        for j in range(i + 1, n):
+            if labels[i] == labels[j]:
                 continue
 
             s_ij = scores[i] - scores[j]
@@ -227,10 +227,12 @@ def compute_lambda_gradients(
                 lambda_ij = torch.sigmoid(-s_ij) * delta_ndcg[i, j]
                 lambdas[i] += lambda_ij
                 lambdas[j] -= lambda_ij
-            elif labels[i] < labels[j]:
-                lambda_ij = torch.sigmoid(-s_ij) * delta_ndcg[j, i]
-                lambdas[i] -= lambda_ij
-                lambdas[j] += lambda_ij
+            else:
+                # labels[j] > labels[i]: compute from j's perspective
+                s_ji = scores[j] - scores[i]
+                lambda_ji = torch.sigmoid(-s_ji) * delta_ndcg[j, i]
+                lambdas[j] += lambda_ji
+                lambdas[i] -= lambda_ji
 
     return lambdas
 
